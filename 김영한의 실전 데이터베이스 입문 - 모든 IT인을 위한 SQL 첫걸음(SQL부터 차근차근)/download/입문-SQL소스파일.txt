@@ -1,0 +1,93 @@
+-- 4. SQL - 데이터 관리
+-- DDL - 테이블 생성1
+
+CREATE TABLE customers (
+    customer_id   INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(50) NOT NULL,
+    email         VARCHAR(100) NOT NULL UNIQUE,
+    password      VARCHAR(255) NOT NULL,
+    address       VARCHAR(255) NOT NULL,
+    join_date     DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE products (
+    product_id     INT AUTO_INCREMENT PRIMARY KEY,
+    name           VARCHAR(100) NOT NULL,
+    description    TEXT,
+    price          INT NOT NULL,
+    stock_quantity INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE orders (
+    order_id     INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id  INT NOT NULL,
+    product_id   INT NOT NULL,
+    quantity     INT NOT NULL,
+    order_date   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status       VARCHAR(20) NOT NULL DEFAULT '주문접수',
+
+    CONSTRAINT fk_orders_customers FOREIGN KEY (customer_id)
+        REFERENCES customers(customer_id),
+
+    CONSTRAINT fk_orders_products FOREIGN KEY (product_id)
+        REFERENCES products(product_id)
+
+);
+
+
+
+-- 5. SQL - 조회와 정렬
+-- 조회 실습 데이터 준비
+
+SET FOREIGN_KEY_CHECKS = 0; -- 비활성화
+truncate table products;
+truncate table customers;
+truncate table orders;
+SET FOREIGN_KEY_CHECKS = 1; -- 활성화
+
+INSERT INTO customers (name, email, password, address, join_date) VALUES
+('이순신', 'yisunsin@example.com', 'password123', '서울특별시 중구 세종대로', '2023-05-01'),
+('세종대왕', 'sejong@example.com', 'password456', '서울특별시 종로구 사직로', '2024-05-01'),
+('장영실', 'youngsil@example.com', 'password789', '부산광역시 동래구 복천동', '2025-05-01');
+
+INSERT INTO products (name, description, price, stock_quantity) VALUES
+('갤럭시', '최신 AI 기능이 탑재된 고성능 스마트폰', 10000, 55),
+('LG 그램', '초경량 디자인과 강력한 성능을 자랑하는 노트북', 20000, 35),
+('아이폰', '직관적인 사용자 경험을 제공하는 스마트폰', 5000, 55),
+('에어팟', '편리한 사용성의 무선 이어폰', 3000, 110),
+('보급형 스마트폰', NULL, 5000, 100);
+
+INSERT INTO orders (customer_id, product_id, quantity) VALUES
+(1, 1, 1), -- 이순신 고객이 갤럭시 1개 주문
+(2, 2, 1), -- 세종대왕 고객이 LG 그램 1개 주문
+(3, 3, 1), -- 장영실 고객이 아이폰 1개 주문
+(1, 4, 2), -- 이순신 고객이 에어팟 2개 추가 주문
+(2, 2, 1); -- 세종대왕 고객이 LG 그램 1개 주문(추가 주문)
+
+
+
+-- 7. SQL - 집계와 그룹핑
+-- 집계와 그룹핑 실습 데이터 준비
+
+CREATE TABLE order_stat (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(50),
+    category VARCHAR(50),
+    product_name VARCHAR(100),
+    price INT,
+    quantity INT,
+    order_date DATE
+);
+
+INSERT INTO order_stat (customer_name, category, product_name, price, quantity, order_date) VALUES
+('이순신', '전자기기', '프리미엄 기계식 키보드', 150000, 1, '2025-05-10'),
+('세종대왕', '도서', 'SQL 마스터링', 35000, 2, '2025-05-10'),
+('신사임당', '가구', '인체공학 사무용 의자', 250000, 1, '2025-05-11'),
+('이순신', '전자기기', '고성능 게이밍 마우스', 80000, 1, '2025-05-12'),
+('세종대왕', '전자기기', '4K 모니터', 450000, 1, '2025-05-12'),
+('장영실', '도서', '파이썬 데이터 분석', 40000, 3, '2025-05-13'),
+('이순신', '문구', '고급 만년필 세트', 200000, 1, '2025-05-14'),
+('세종대왕', '가구', '높이조절 스탠딩 데스크', 320000, 1, '2025-05-15'),
+('신사임당', '전자기기', '노이즈캔슬링 블루투스 이어폰', 180000, 1, '2025-05-15'),
+('장영실', '전자기기', '보조배터리 20000mAh', 50000, 2, '2025-05-16'),
+('홍길동', NULL, 'USB-C 허브', 65000, 1, '2025-05-17'); -- 카테고리가 NULL인 데이터 추가
